@@ -67,7 +67,7 @@ export function createWorld(renderer) {
   const animated = []
   const flickerLights = []
   const beacons = []
-  const platform = { minX: -6.4, maxX: 6.4, minZ: -5.4, maxZ: 5.4, height: 1.08, ramps: [{ x: 0, z0: 5.4, z1: 9.6, w: 4.6 }, { x: 0, z0: -9.6, z1: -5.4, w: 4.6 }] }
+  const platform = { minX: -6.4, maxX: 6.4, minZ: -5.4, maxZ: 5.4, height: 1.08, ramps: [{ x: 0, z0: 5.4, z1: 9.6, w: 4.6 }, { x: 0, z0: -5.4, z1: -9.6, w: 4.6 }] }
 
   function shadow(obj, cast = true, receive = true) {
     obj.traverse?.(o => { if (o.isMesh) { o.castShadow = cast; o.receiveShadow = receive } })
@@ -294,27 +294,20 @@ export function createWorld(renderer) {
   heli.rotation.x = -Math.PI / 2
   heli.position.y = platform.height + 0.11
   platformGroup.add(heli)
-  // ramps
+  // ramps: z0 is the platform edge (top) and z1 the ground edge (bottom)
+  const rampMat = MAT.metalDark.clone()
+  rampMat.side = THREE.DoubleSide
   for (const r of platform.ramps) {
     const len = Math.abs(r.z1 - r.z0)
-    const geo = new THREE.BufferGeometry()
-    const w = r.w / 2
-    const zNear = r.z0, zFar = r.z1
-    const verts = new Float32Array([
-      -w, 0, zNear, w, 0, zNear, -w, platform.height, zFar,
-      w, 0, zNear, w, platform.height, zFar, -w, platform.height, zFar,
-      -w, 0, zNear, -w, platform.height, zFar, -w, 0, zFar,
-      w, 0, zNear, w, 0, zFar, w, platform.height, zFar,
-      -w, 0, zFar, w, 0, zFar, -w, platform.height, zFar,
-      w, 0, zFar, w, platform.height, zFar, -w, platform.height, zFar,
-    ])
-    geo.setAttribute('position', new THREE.BufferAttribute(verts, 3))
-    geo.computeVertexNormals()
-    const ramp = new THREE.Mesh(geo, MAT.metalDark)
+    const hyp = Math.hypot(len, platform.height)
+    const slope = Math.atan2(platform.height, len) * Math.sign(r.z1 - r.z0)
+    const ramp = box(r.w, 0.14, hyp, rampMat, 0, platform.height / 2 - 0.06, (r.z0 + r.z1) / 2)
+    ramp.rotation.x = slope
     platformGroup.add(ramp)
-    // side rails
+    // side rails follow the slope
     for (const side of [-1, 1]) {
-      const rail = box(0.06, 0.06, len, MAT.metalLight, side * (w + 0.05), platform.height * 0.55, (zNear + zFar) / 2)
+      const rail = box(0.06, 0.06, hyp, MAT.metalLight, side * (r.w / 2 + 0.05), platform.height * 0.55, (r.z0 + r.z1) / 2)
+      rail.rotation.x = slope
       platformGroup.add(rail)
     }
   }

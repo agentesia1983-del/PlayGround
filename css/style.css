@@ -338,9 +338,11 @@ canvas{display:block}
 #error-screen{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;background:rgba(2,5,8,.9)}
 #error-screen p{font-size:12px;letter-spacing:.08em;color:#9fb4c0;line-height:1.6}
 
-body.touch .hud-bottom-left{width:240px}
-body.touch .hud-bottom-right{width:220px}
-body.touch #ammo-mag{font-size:44px}
+body.touch .hud-bottom-left{left:calc(18px + var(--safe-l));bottom:calc(188px + var(--safe-b));width:min(190px,42vw)}
+body.touch .hud-bottom-right{right:calc(18px + var(--safe-r));bottom:calc(212px + var(--safe-b));width:min(190px,42vw)}
+body.touch #ammo-mag{font-size:38px}
+body.touch #ammo-reserve{font-size:17px}
+body.touch .ammo-slash{font-size:19px}
 body.touch .hud-top-right{top:calc(18px + var(--safe-t));right:calc(16px + var(--safe-r))}
 body.touch .minimap-frame{width:124px;height:124px;padding:5px}
 body.touch .minimap-label{bottom:-14px;font-size:6px}
@@ -352,12 +354,12 @@ body.touch .hud-top-center{top:calc(16px + var(--safe-t))}
 body.touch #killfeed{width:180px;margin-top:10px}
 body.touch #killfeed .kill-item{font-size:8px}
 body.touch .hud-corner{width:22px;height:22px}
-body.touch .hud-pause{right:calc(181px + var(--safe-r));bottom:calc(200px + var(--safe-b))}
-body.touch .hud-sound{right:calc(150px + var(--safe-r));bottom:calc(200px + var(--safe-b))}
+body.touch .hud-pause{left:calc(18px + var(--safe-l));top:calc(112px + var(--safe-t));right:auto;bottom:auto;opacity:.8}
+body.touch .hud-sound{left:calc(52px + var(--safe-l));top:calc(112px + var(--safe-t));right:auto;bottom:auto;opacity:.8}
 body.touch #reticle-hint{display:none}
 body.touch .equipment{display:none}
 body.touch .weapon-slots{display:none}
-body.touch .operator-line{font-size:10px}
+body.touch .operator-line{font-size:10px;margin-bottom:4px}
 body.touch .health-wrap{width:100%}
 
 @media (max-width:900px){
@@ -386,6 +388,62 @@ body.touch .health-wrap{width:100%}
   .hud-pause{right:calc(197px + var(--safe-r));bottom:calc(222px + var(--safe-b))}
   .hud-sound{right:calc(166px + var(--safe-r));bottom:calc(222px + var(--safe-b))}
   .controls-grid{grid-template-columns:1fr}
+}
+
+@media (max-height:520px) and (orientation:landscape){
+  #menu{padding:calc(12px + var(--safe-t)) calc(22px + var(--safe-r)) calc(10px + var(--safe-b)) calc(22px + var(--safe-l))}
+  .menu-main{display:block;padding-bottom:0}
+  .eyebrow{margin-bottom:5px;font-size:7px}
+  .menu-hero h1{font-size:clamp(48px,9vw,76px);line-height:.8}
+  .tagline{margin-top:8px;font-size:13px}
+  .hero-rule{margin-top:5px;font-size:7px}
+  .primary-btn{margin-top:10px;padding:10px 30px;min-width:190px;font-size:13px}
+  .menu-note{display:none}
+  .menu-bottom{padding-top:6px;font-size:7px}
+  .menu-actions .ghost-btn{padding:6px 10px;font-size:8px}
+  body.touch .hud-top-left{top:calc(10px + var(--safe-t));left:calc(14px + var(--safe-l))}
+  body.touch .brand{font-size:12px}
+  body.touch .objective{margin-top:4px}
+  body.touch .wave-line{margin-top:4px;font-size:9px}
+  body.touch .hud-top-center{top:calc(6px + var(--safe-t))}
+  body.touch .compass{width:180px;min-width:0;height:24px}
+  body.touch .hud-top-right{top:calc(10px + var(--safe-t));right:calc(12px + var(--safe-r))}
+  body.touch .minimap-frame{width:94px;height:94px;padding:4px}
+  body.touch .minimap-label{bottom:-12px;font-size:5px}
+  body.touch #killfeed{width:140px;margin-top:4px}
+  body.touch #killfeed .kill-item{font-size:7px;padding:2px 6px 2px 14px}
+  body.touch .hud-pause{left:calc(14px + var(--safe-l));top:calc(86px + var(--safe-t));bottom:auto;right:auto}
+  body.touch .hud-sound{left:calc(48px + var(--safe-l));top:calc(86px + var(--safe-t));bottom:auto;right:auto}
+  body.touch .hud-bottom-left{left:calc(14px + var(--safe-l));bottom:calc(150px + var(--safe-b));width:170px}
+  body.touch .hud-bottom-right{right:calc(14px + var(--safe-r));bottom:calc(170px + var(--safe-b));width:170px}
+  body.touch #ammo-mag{font-size:30px}
+  body.touch #ammo-reserve{font-size:14px}
+  body.touch .ammo-slash{font-size:16px}
+  body.touch #stick-zone{left:calc(14px + var(--safe-l));bottom:calc(14px + var(--safe-b));width:118px;height:118px}
+  body.touch .touch-right{right:calc(10px + var(--safe-r));bottom:calc(10px + var(--safe-b));transform:scale(.82);transform-origin:bottom right}
+  .modal-screen{padding:8px}
+  .modal-card{width:min(560px,calc(100vw - 24px));max-height:calc(100vh - 16px);padding:12px 20px 14px;overflow-x:hidden}
+  .pause-card,.result-card{overflow:hidden}
+  .result-card{width:min(650px,calc(100vw - 24px))}
+  .settings-card{width:min(590px,calc(100vw - 24px))}
+  .modal-kicker{font-size:7px;margin-bottom:4px}
+  .modal-card h2{font-size:30px;margin-bottom:7px}
+  #result-sub{font-size:10px;margin-bottom:10px}
+  .pause-stats{margin:6px 0 2px}
+  .pause-stats div{padding:5px 4px}
+  .pause-stats span,.result-stats span{font-size:7px;margin-bottom:2px}
+  .pause-stats b{font-size:15px}
+  .pause-card .primary-btn{margin-top:8px;padding:9px 24px;min-width:170px;font-size:12px}
+  .pause-card .ghost-btn{margin-top:4px;padding:6px 12px;font-size:8px}
+  .result-stats div{padding:6px}
+  .result-stats b{font-size:16px}
+  .result-buttons .primary-btn{min-width:180px;margin-top:8px;padding:9px 24px;font-size:12px}
+  .result-buttons .ghost-btn{padding:6px 12px;font-size:8px}
+  .controls-grid{margin:4px 0 2px}
+  .controls-grid div{padding:5px 10px}
+  .controls-grid kbd{font-size:8px}
+  .controls-grid span{font-size:7px}
+  .setting-row{padding:7px 0;gap:5px}
 }
 
 @media (max-width:560px){

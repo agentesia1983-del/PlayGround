@@ -105,6 +105,7 @@ export class Game {
     this.crouchToggle = false
     this.keys = new Set()
     this.fireHeld = false
+    this.fireTap = false
     this.adsHeld = false
     this.jumpQueued = false
     this.dragLook = false
@@ -376,7 +377,7 @@ export class Game {
       if (e.code === 'KeyQ') this.weapon.nextWeapon()
     })
     document.addEventListener('keyup', e => { this.keys.delete(e.code) })
-    window.addEventListener('blur', () => { this.fireHeld = false; if (this.mode === 'playing') this.pause() })
+    window.addEventListener('blur', () => { this.fireHeld = false; this.fireTap = false; if (this.mode === 'playing') this.pause() })
     document.addEventListener('visibilitychange', () => { if (document.hidden && this.mode === 'playing') this.pause() })
 
     canvas.addEventListener('contextmenu', e => e.preventDefault())
@@ -391,6 +392,7 @@ export class Game {
         return
       }
       this.fireHeld = true
+      this.fireTap = true
     })
     window.addEventListener('mouseup', e => {
       if (e.button === 0) this.fireHeld = false
@@ -471,7 +473,7 @@ export class Game {
       el.addEventListener('pointercancel', () => { up?.(); el.classList.remove('on') })
       el.addEventListener('pointerleave', e => { if (e.buttons) return; up?.(); el.classList.remove('on') })
     }
-    hold($('t-fire'), () => { this.audio.init(); this.fireHeld = true }, () => { this.fireHeld = false })
+    hold($('t-fire'), () => { this.audio.init(); this.fireHeld = true; this.fireTap = true }, () => { this.fireHeld = false })
     $('t-ads').addEventListener('pointerdown', e => { e.preventDefault(); this.touchAds = !this.touchAds; $('t-ads').classList.toggle('on', this.touchAds) })
     $('t-reload').addEventListener('pointerdown', e => { e.preventDefault(); this.weapon.reload(); $('t-reload').classList.add('on'); setTimeout(() => $('t-reload').classList.remove('on'), 150) })
     $('t-jump').addEventListener('pointerdown', e => { e.preventDefault(); this.jumpQueued = true; $('t-jump').classList.add('on'); setTimeout(() => $('t-jump').classList.remove('on'), 150) })
@@ -545,6 +547,7 @@ export class Game {
     this.weapon.reset()
     this.weapon.visible = true
     this.fireHeld = false
+    this.fireTap = false
     this.adsHeld = false
     this.touchAds = false
     this.crouchToggle = false
@@ -557,7 +560,8 @@ export class Game {
     this.hud.setReticleHint(!this.touchMode)
     document.body.classList.add('playing')
     this.applyQuality(this.quality)
-    this.requestLock()
+    if (this.touchMode) this.ignoreUnlock = true
+    else this.requestLock()
     this.startWave(1)
     this.hud.notify('<b>MISSION START</b> // HOLD THE LINE', 2600)
   }
@@ -578,6 +582,7 @@ export class Game {
     this.mode = 'menu'
     this.weapon.visible = false
     this.fireHeld = false
+    this.fireTap = false
     this.adsHeld = false
     this.touchAds = false
     this.fade = 0.4
@@ -591,6 +596,7 @@ export class Game {
     if (this.mode !== 'playing') return
     this.mode = 'paused'
     this.fireHeld = false
+    this.fireTap = false
     this.adsHeld = false
     this.ignoreUnlock = true
     if (document.pointerLockElement) document.exitPointerLock()
@@ -784,7 +790,8 @@ export class Game {
     const bobAmt = moving && p.grounded ? clamp(p.speed / 7, 0, 1) * (1 - this.weapon.adsAmount * 0.85) : 0
     const bobY = Math.sin(p.stepPhase * 2) * 0.035 * bobAmt
     const bobX = Math.cos(p.stepPhase) * 0.022 * bobAmt
-    const strafeRoll = clamp((r * -1) * 0.02 + (this.mouseDX * 0.000015), -0.04, 0.04)
+    const lookDX = this.mouseDX, lookDY = this.mouseDY
+    const strafeRoll = clamp((r * -1) * 0.02 + (lookDX * 0.000015), -0.04, 0.04)
     this.mouseDX = 0; this.mouseDY = 0
 
     const recoil = this.weapon.consumeRecoil()
@@ -818,7 +825,7 @@ export class Game {
     const input = {
       time: this.time, speed: p.speed, sprinting: wantSprint, crouch: p.crouching,
       grounded: p.grounded, adsHeld: ads, fireHeld: this.fireHeld,
-      mouseDX: this.mouseDX, mouseDY: this.mouseDY, moving,
+      mouseDX: lookDX, mouseDY: lookDY, moving,
     }
     this.weapon.adsHeld = ads
     this.weapon.update(dt, input)
@@ -827,6 +834,11 @@ export class Game {
     this.camera.fov = this.weapon.currentFov + (wantSprint ? 5 : 0)
     this.camera.updateProjectionMatrix()
 
+    // A tap shorter than one frame would otherwise be lost on low frame rates.
+    if (this.fireTap) {
+      this.fireTap = false
+      if (this.mode === 'playing') this.weapon.tryFire()
+    }
     if (this.weapon.shotThisFrame) this.shoot()
     if (this.weapon.consumeMeleeHit()) this.meleeDamage()
   }
@@ -1010,6 +1022,7 @@ export class Game {
     this.resultTimer = 0
     this.resultsShown = false
     this.fireHeld = false
+    this.fireTap = false
     this.ignoreUnlock = true
     if (document.pointerLockElement) document.exitPointerLock()
     this.hud.setTouchVisible(false)
@@ -1025,6 +1038,7 @@ export class Game {
     this.resultTimer = 0
     this.resultsShown = false
     this.fireHeld = false
+    this.fireTap = false
     this.ignoreUnlock = true
     if (document.pointerLockElement) document.exitPointerLock()
     this.hud.setTouchVisible(false)
